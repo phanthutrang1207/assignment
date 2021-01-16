@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: api-gateway
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    
+server:
+  port: 8080
+  
+zuul:
+  ratelimit:
+    enabled: true
+    repository: JPA
+    behind-proxy: true
+    default-policy-list: # limite 10 request in 30 seconds
+    - limit: 10 
+      refresh-interval: 30 
+      
+management:
+  endpoints:
+    web:
+      exposure:
+        include: routes,filters
+
+okta:
+  oauth2:
+    issuer: https://dev-8366513.okta.com/oauth2/default
+    clientId: 0oa3nsshcZsN8JZcK5d6
+    clientSecret: 2xGzXQm70X7l26axot5wI2xWHSqYGbBHs8mNusiB
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      default-zone: ${EUREKA_URI:http://localhost:8761/eureka}
