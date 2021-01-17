@@ -1,0 +1,7 @@
+spring:
+  redis:
+    host: localhost
+    port: 6370
+eureka:
+  client:
+    enabled: false

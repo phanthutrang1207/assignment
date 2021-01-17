@@ -13,6 +13,9 @@ server:
   port: 8080
   
 zuul:
+  host:
+    socket-timeout-millis: 60000
+    connect-timout-millis: 60000
   ratelimit:
     enabled: true
     repository: JPA
@@ -20,6 +23,20 @@ zuul:
     default-policy-list: # limite 10 request in 30 seconds
     - limit: 10 
       refresh-interval: 30 
+
+ribbon:
+  eureka:
+    enabled: true  #important
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 240000 #important
       
 management:
   endpoints:
@@ -30,8 +47,6 @@ management:
 okta:
   oauth2:
     issuer: https://dev-8366513.okta.com/oauth2/default
-    clientId: 0oa3nsshcZsN8JZcK5d6
-    clientSecret: 2xGzXQm70X7l26axot5wI2xWHSqYGbBHs8mNusiB
 
 eureka:
   instance:

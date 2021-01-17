@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+
+  redis:
+    image: redis:6.0.10-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-volume:/data
+
+  mongodb:
+    image: mongo:4.4.3-bionic
+    volumes:
+      - mongo-volume:/data/db
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_DATABASE: audits
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+    - 5672:5672
+    - 15672:15672
+
+volumes:
+  redis-volume: {}
+  mongo-volume: {}
