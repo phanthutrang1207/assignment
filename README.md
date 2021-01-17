@@ -20,27 +20,26 @@ Ports used:
 - MongoDB: 27017
 - Redis: 6379
 
-
 At root project folder run services by execute these command line:
 
 **Service discover** - Port 8761
 ```
-$ ./service-discovery/mvnw spring-boot:run
+$ cd service-discovery && ./mvnw spring-boot:run
 ```
 
 **Product service** - Port 8082
 ```
-$ ./product-service/mvnw spring-boot:run
+$ cd product-service && ./mvnw spring-boot:run
 ```
 
 **Audit service** - Port 8083
 ```
-$ ./audit-service/mvnw spring-boot:run
+$ cd audit-service && ./mvnw spring-boot:run
 ```
 
 **Api gateway** - Port 8080
 ```
-$ ./api-gateway/mvnw spring-boot:run
+$ cd api-gateway && ./mvnw spring-boot:run
 ```
 
 You can access to http://localhost:8761/ to see list of registried services
@@ -69,38 +68,50 @@ curl --location --request GET 'http://localhost:8080/product-service/products' \
     --header 'Authorization: Bearer {accessToken}'
 ```
 
-Here is Postman collection used for testing: 
+# Testing
+**Import postman collection**
+- Please import this file here [a link](https://github.com/phanthutrang1207/assignment/tree/master/postman_collection/assigment.postman_collection.json) to Postman for testing APIs.
+
+**Steps for testing**
+
+- Step 1. Generate token with the request name: `Generate access token`
+- Step 2. Before testing for `Audit-service`, we need to run `Product-service` first for sending the message. If not, the response data of `Audit-service` is empty.
+
+We have 2 GET APIs in `product-service` directory in Postman.
+The request with name: GetProductsBySearchKey is supported for get all products by search key.
+The request with name: GetProductByProviderProductIdAndProviderName is supported for get detailed product if we have providerProductId and providerName. You have to set value for those variables based on the response of GetProductsBySearchKey API.
+We supported 1 GET API with name getAuditDatas in `audit-service` directory in Postman. The reponse of this request is `search product log data` that users have searched.
+
 # Requirements analysis
 Build a `Smart Choice` web application which supporting user can view and compare the price of Product from different providers (Tiki, Lazada, Shopee,...)
 This application has those below features:
 
 **1. Support customer compare a product price and some information like: product name, current price, the discount rate, promotion...**
 
-**Propose solution**: Introduce a rest service which receive user request - search keyword. Use that keyword to call query products from different providers.
+**Proposed solution**: Introduce a rest service which receive user request - search keyword. Use that keyword to call query products from different providers.
 
 **2. The customer can click on the product to see more details.**
 
-**Propose solution**: Introduce a GET api to get a product by provider product id and provider name. We need to avoid the case provider product id is duplicated between different provider then we have to add provider name.
+**Proposed solution**: Introduce a GET api to get a product by providing id and provider name.
 
 **3. For audit support, the company wants to keep track of the searching history of the customer. Failure to store customer activity should have no impact to the application.**
 
-**Propose solution**: Setup a message-broker - we choose RabbitMQ. When ever user search something, we produce a message contains search keyword to message queue. We create another service act as audit service, this service will listen on message queue and consume message, store search key word into database.
+**Proposed solution**: Setup a message-broker - we choose RabbitMQ. When ever user search something, we produce a message contains search keyword to message queue. We create another service act as audit service, this service will listen on message queue and consume message, store search key word into database.
 
 **4. Handle performance issue when this website be used by a lot of people**
 
-**Propose solution**: Run many instances for our service and setup a load balancer to balance traffic across multiple instances. We will setup an Eureka server for handling load balancing and act as discovery service.
+**Proposed solution**: Run many instances for our service and setup a load balancer to balance traffic across multiple instances. We will setup an Eureka server for handling load balancing and act as discovery service.
 
 **5. Make sure all the data must be completely returned from 3rd parties before the return to the website.**
 
-**Propose solution**: Apply multithread to get data from providers. We get data from providers in parallel and wait for all task done, then we combine data and return to user
+**Proposed solution**: Apply multithread to get data from providers. We get data from providers in parallel and wait for all task done, then we combine data and return to user
 
 **6. Handle decrease the cost and improve the effectiveness of the application because each request sent to 3rd will be charged for a fee.**
 
-**Propose solution**: Cache result by search keyword in period of time (period time configurable). Ex: When user search for keyword `apple` the result will be cache in 3 mins, in that 3 mins if user search with `apple` again we just get result from cache, no need to call third party again.
+**Proposed solution**: Cache result by search keyword in period of time (period time configurable). Ex: When user search for keyword `apple` the result will be cache in 3 mins, in that 3 mins if user search with `apple` again we just get result from cache, no need to call third party again.
 # Overview design
 
 <img src="./images/system-design.png" width="800">
-
 
 # Technique, framework, tools
 
@@ -112,14 +123,13 @@ Because we already used Spring Boot and we take it advantage, Zuul and Eureka ar
 
 ## Okta
 Okta is an identity management service help us to manage our service and manage authentication. It is free for our developer, easy to setup and use. So that we don't have to spend time on setup our authentication server.
-
 We use Okta to generate access token and verify access token for our services.
+
 ## Redis
 Redis will act as center cache of our system. Becuase we intend to make our services scale which run in many instances, we have to make all instances share the same cache. Then when a client requests are rediected to different instances we still can get from cache for that user requests
 
 ## RabbitMQ
 RabbitMQ is a message-queueing software also known as a message broker or queue manager. Simply said; it is software where queues are defined, to which applications connect in order to transfer a message or messages.
-
 We use it because it is fast to setup and run, it just works for our requirement. Save time to focus on our manin service.
 
 # Services
@@ -134,7 +144,7 @@ This service responsibility for all services which related to products like: com
 By the way, it supported for sending message to queue then audit-service can comsuming for audit search products.
 
 ## Audit-service
-This service reponsibility for consuming message queue and store search activities of client to database for later data analyze.
+This service reponsibity for consuming message queue and store search activities of client to database for later data analyze.
 
 # Security
 - We intend introduce these services run inside private/internal system, so we only expose API Gateway to outside.

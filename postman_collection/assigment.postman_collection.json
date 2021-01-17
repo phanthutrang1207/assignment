@@ -1,0 +1,197 @@
+{
+	"info": {
+		"_postman_id": "35721cfd-f8f1-4c4d-b89c-ed9849239cc0",
+		"name": "assigment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "product-service",
+			"item": [
+				{
+					"name": "GetProductsBySearchKey",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/product-service/products?key=iphone&page=0&size=5&sorting=PRICE_DES",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"product-service",
+								"products"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "iphone"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "sorting",
+									"value": "PRICE_DES"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetProductByProviderProductIdAndProviderName",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/product-service/products/{{providerProductId}}?providerName={{providerName}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"product-service",
+								"products",
+								"{{providerProductId}}"
+							],
+							"query": [
+								{
+									"key": "providerName",
+									"value": "{{providerName}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "audit-service",
+			"item": [
+				{
+					"name": "getAuditDatas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/audit-service/audits",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"audit-service",
+								"audits"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Generate access token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"bearer_token\", jsonData['access_token']);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "2xGzXQm70X7l26axot5wI2xWHSqYGbBHs8mNusiB",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "0oa3nsshcZsN8JZcK5d6",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "my_custom_scope",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://dev-8366513.okta.com/oauth2/default/v1/token",
+					"protocol": "https",
+					"host": [
+						"dev-8366513",
+						"okta",
+						"com"
+					],
+					"path": [
+						"oauth2",
+						"default",
+						"v1",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
